@@ -2,7 +2,16 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-void main() {
+import 'database.dart' as Db;
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final database = Db.MyDatabase();
+
+  // Simple select:
+  final allTimers = await database.select(database.timers).get();
+  print('Timers in database: $allTimers');
+
   runApp(MyApp());
 }
 
@@ -77,3 +86,17 @@ class _StopwatchPageState extends State<StopwatchPage> {
     );
   }
 }
+
+/*
+import 'database.dart' as Db;
+
+Future<void> main() async {
+  final database = Db.MyDatabase();
+
+  // Simple select:
+  final allTimers = await database.select(database.timers).get();
+  print('Categories in database: $allTimers');
+
+  runApp(MyApp());
+}
+*/
