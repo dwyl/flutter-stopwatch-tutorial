@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:drift/drift.dart' as drift;
+import 'package:stopwatch_demo/stopwatch.dart';
 
 import 'database.dart' as Db;
 
@@ -34,26 +35,29 @@ class StopwatchPage extends StatefulWidget {
 }
 
 class _StopwatchPageState extends State<StopwatchPage> {
-  late Stopwatch _stopwatch;
-  late Timer _timer;
+  late Future<StopwatchEx> _stopwatch;
   late Db.MyDatabase _database;
   late int currentId = 1;
+
+  late Timer _timer;
 
   @override
   void initState() {
     super.initState();
-
     WidgetsFlutterBinding.ensureInitialized();
-    _database = Db.MyDatabase();
 
-    _stopwatch = Stopwatch();
+    // Initializing variables -------
+    _database = Db.MyDatabase();
 
     // Timer to rerender the page so the text shows the seconds passing by
     _timer = Timer.periodic(const Duration(milliseconds: 200), (timer) {
-      if (_stopwatch.isRunning) {
-        setState(() {});
-      }
+      _stopwatch.then((stopwatch) => {
+            if (stopwatch.isRunning) {setState(() {})}
+          });
     });
+
+    // Fetching current stopwatch duration
+    _stopwatch = initializeStopwatch();
   }
 
   @override
@@ -64,12 +68,37 @@ class _StopwatchPageState extends State<StopwatchPage> {
 
   // Deletes all timers
   Future<void> deleteHistoricTimers() async {
+    
+    // Deleting persisted timers
     _database.delete(_database.timers).go();
+
+    // Reset stopwatch timer
+    final stopwatch = await _stopwatch;
+    stopwatch.reset();
+  }
+
+  Future<StopwatchEx> initializeStopwatch() async {
+    // Fetch all the persisted timers
+    final allTimers = await _database.select(_database.timers).get();
+
+    if (allTimers.isEmpty) return StopwatchEx();
+
+    // Accumulate the duration of every timer
+    Duration accumulativeDuration = const Duration();
+    for (Db.Timer timer in allTimers) {
+      final stop = timer.stop;
+      if (stop != null) {
+        accumulativeDuration += stop.difference(timer.start);
+      }
+    }
+
+    return StopwatchEx(initialOffset: accumulativeDuration);
   }
 
   // Handles starting and stop
   Future<void> handleStartStop() async {
-    if (_stopwatch.isRunning) {
+    final stopwatch = await _stopwatch;
+    if (stopwatch.isRunning) {
       // Updating timer of the currentId
       final updatedTimer =
           Db.TimersCompanion(stop: drift.Value(DateTime.now()));
@@ -78,10 +107,7 @@ class _StopwatchPageState extends State<StopwatchPage> {
             ..where((tbl) => tbl.id.equals(currentId)))
           .write(updatedTimer);
 
-      //final allTimers = await _database.select(_database.timers).get();
-      //print(allTimers);
-
-      _stopwatch.stop();
+      stopwatch.stop();
       setState(() {});
     } else {
       // Getting the newly created timer ID to change state with
@@ -89,7 +115,7 @@ class _StopwatchPageState extends State<StopwatchPage> {
           .into(_database.timers)
           .insert(Db.TimersCompanion.insert(start: DateTime.now()));
 
-      _stopwatch.start();
+      stopwatch.start();
       setState(() {
         currentId = insertedId;
       });
@@ -101,38 +127,37 @@ class _StopwatchPageState extends State<StopwatchPage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Stopwatch Example')),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(formatTime(_stopwatch.elapsedMilliseconds),
-                style: const TextStyle(fontSize: 48.0)),
-            Text(currentId.toString()),
-            ElevatedButton(
-                onPressed: handleStartStop,
-                child: Text(_stopwatch.isRunning ? 'Stop' : 'Start')),
-            ElevatedButton(
-                onPressed: deleteHistoricTimers,
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    textStyle: TextStyle(color: Colors.white)),
-                child: const Text('Delete')),
-          ],
+        child: FutureBuilder<StopwatchEx>(
+          future: _stopwatch,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              final stopwatch = snapshot.data!;
+
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Text(formatTime(stopwatch.elapsedMilliseconds),
+                      style: const TextStyle(fontSize: 48.0)),
+                  ElevatedButton(
+                      onPressed: handleStartStop,
+                      child: Text(stopwatch.isRunning ? 'Stop' : 'Start')),
+                  ElevatedButton(
+                      onPressed: deleteHistoricTimers,
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          textStyle: const TextStyle(color: Colors.white)),
+                      child: const Text('Delete')),
+                ],
+              );
+            } else if (snapshot.hasError) {
+              return Text('${snapshot.error}');
+            }
+
+            // By default, show a loading spinner.
+            return const CircularProgressIndicator();
+          },
         ),
       ),
     );
   }
 }
-
-/*
-import 'database.dart' as Db;
-
-Future<void> main() async {
-  final database = Db.MyDatabase();
-
-  // Simple select:
-  final allTimers = await database.select(database.timers).get();
-  print('Categories in database: $allTimers');
-
-  runApp(MyApp());
-}
-*/
