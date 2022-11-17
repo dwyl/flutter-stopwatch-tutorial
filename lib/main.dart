@@ -62,9 +62,14 @@ class _StopwatchPageState extends State<StopwatchPage> {
     super.dispose();
   }
 
+  // Deletes all timers
+  Future<void> deleteHistoricTimers() async {
+    _database.delete(_database.timers).go();
+  }
+
+  // Handles starting and stop
   Future<void> handleStartStop() async {
     if (_stopwatch.isRunning) {
-
       // Updating timer of the currentId
       final updatedTimer =
           Db.TimersCompanion(stop: drift.Value(DateTime.now()));
@@ -79,7 +84,6 @@ class _StopwatchPageState extends State<StopwatchPage> {
       _stopwatch.stop();
       setState(() {});
     } else {
-
       // Getting the newly created timer ID to change state with
       final insertedId = await _database
           .into(_database.timers)
@@ -106,6 +110,12 @@ class _StopwatchPageState extends State<StopwatchPage> {
             ElevatedButton(
                 onPressed: handleStartStop,
                 child: Text(_stopwatch.isRunning ? 'Stop' : 'Start')),
+            ElevatedButton(
+                onPressed: deleteHistoricTimers,
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    textStyle: TextStyle(color: Colors.white)),
+                child: const Text('Delete')),
           ],
         ),
       ),
