@@ -122,10 +122,55 @@ class _StopwatchPageState extends State<StopwatchPage> {
     }
   }
 
+  void _pushCompleted() {
+    _database
+        .select(_database.timers)
+        .get()
+        .then((allTimers) => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (context) {
+                  final tiles = allTimers.map(
+                    (timer) {
+                      return ListTile(
+                        title: Text(
+                          "Start: ${timer.start} \n"
+                          "End: ${timer.stop}",
+                          style: const TextStyle(fontSize: 18),
+                        ),
+                      );
+                    },
+                  );
+                  final divided = tiles.isNotEmpty
+                      ? ListTile.divideTiles(
+                          context: context,
+                          tiles: tiles,
+                        ).toList()
+                      : <Widget>[];
+
+                  return Scaffold(
+                    appBar: AppBar(
+                      title: const Text('Persisted timers'),
+                    ),
+                    body: ListView(children: divided),
+                  );
+                },
+              ),
+            ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Stopwatch Example')),
+      appBar: AppBar(
+        title: const Text('Stopwatch Example'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.list),
+            onPressed: _pushCompleted,
+            tooltip: 'completed todo list',
+          ),
+        ],
+      ),
       body: Center(
         child: FutureBuilder<StopwatchEx>(
           future: _stopwatch,
@@ -147,6 +192,7 @@ class _StopwatchPageState extends State<StopwatchPage> {
                       Padding(
                         padding: const EdgeInsets.only(right: 32.0),
                         child: FloatingActionButton(
+                          heroTag: "startstop_btn",
                           onPressed: handleStartStop,
                           child: stopwatch.isRunning
                               ? const Icon(Icons.stop)
@@ -154,6 +200,7 @@ class _StopwatchPageState extends State<StopwatchPage> {
                         ),
                       ),
                       FloatingActionButton(
+                        heroTag: "delete_btn",
                         onPressed:
                             !stopwatch.isRunning ? deleteHistoricTimers : null,
                         backgroundColor: stopwatch.isRunning
