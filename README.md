@@ -116,6 +116,167 @@ the stopwatch was stopped and restarted but also when.
 
 # How? 💻
 
+## Project setup 
+Let's get cracking! 
+To first setup our project. 
+
+In this walkthrough we are going to use Visual Studio Code. We will assume you have this IDE installed, as well as the Flutter and Dart extensions installed. If not, do so.
+
+![extensions](https://user-images.githubusercontent.com/17494745/200812248-0c9336da-74aa-49ff-9aba-758501f4dce2.png)
+
+After restarting VSCode, we can now create our project!
+Click on `View > Command Palette`, 
+type Flutter and click on Flutter: New Project. 
+It will ask you for a name of the new project. 
+Name it `stopwatch_demo`.
+
+To run the app, follow the previous steps
+if you want to run on a real device.
+If you want to run on an emulator, click on the **device button**
+in the bottom bar in VS Code, choose the device you want to run in
+and you should be set!
+Now simply press `F5` or `Run > Start debugging` and 
+wait for the build process to finish.
+
+Your app should look like this 
+(we are running on an iPhone 14 Pro Max emulator).
+
+![boilerplate](https://user-images.githubusercontent.com/17494745/200814531-31579684-e6ec-4da4-a504-642eb31fedb9.png)
+
+Congrats, you got the default app running! :tada:
+
+## Basic stopwatch 
+Now let's add a basic stopwatch to our application.
+In the `main.dart` file, replace the code
+with the following snippet.
+
+```dart
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'utils.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(title: 'Stopwatch Example', home: StopwatchPage());
+  }
+}
+
+class StopwatchPage extends StatefulWidget {
+  const StopwatchPage({super.key});
+
+  @override
+  createState() => _StopwatchPageState();
+}
+
+class _StopwatchPageState extends State<StopwatchPage> {
+  late Stopwatch _stopwatch;
+  late Timer _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _stopwatch = Stopwatch();
+    _timer = Timer.periodic(const Duration(milliseconds: 200), (timer) {
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
+  void handleStartStop() {
+    if (_stopwatch.isRunning) {
+      _stopwatch.stop();
+    } else {
+      _stopwatch.start();
+    }
+    setState(() {}); // re-render the page
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Stopwatch Example')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text(formatTime(_stopwatch.elapsedMilliseconds),
+                style: const TextStyle(fontSize: 48.0)),
+            ElevatedButton(
+                onPressed: handleStartStop,
+                child: Text(_stopwatch.isRunning ? 'Stop' : 'Start')),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
+Inside the `lib` directory, create a new 
+file called `utils.dart` and add the following code to it.
+
+```dart
+String formatTime(int milliseconds) {
+  var secs = milliseconds ~/ 1000;
+  var hours = (secs ~/ 3600).toString().padLeft(2, '0');
+  var minutes = ((secs % 3600) ~/ 60).toString().padLeft(2, '0');
+  var seconds = (secs % 60).toString().padLeft(2, '0');
+  return "$hours:$minutes:$seconds";
+}
+```
+
+Let's breakdown these changes we just made.
+In the `main.dart` file we are creating a 
+**stateful widget** (a widget that is not static) `StopwatchPage`.
+These widgets have a _state_, which makes the widget dynamic
+throughout its lifetime. 
+When creating a stateful widget, a state class is created
+alongside it, representing the state of the widget
+and determines what is built and shown to the user.
+
+In this `StopwatchPage` widget, we are adding two fields to its state:
+`_stopwatch` and `_timer`. 
+The first one is literally a [`Stopwatch`](https://api.dart.dev/be/180360/dart-core/Stopwatch-class.html)
+class that is offered by the Dart SDK natively. 
+This class allows us to `start`, `stop` and `reset` a stopwatch.
+It's a rather simple implementation. 
+However, there are not any hooks that we have that lets us
+rerender the UI. Therefore, we create the second field `_timer`,
+which will rerender the `Text` containing the time elapsed
+every **200ms**.
+
+In the UI, we have two buttons. 
+One button toggles between `Start` and `Stop`, which is handled 
+by the `handleStartStop` handler. 
+At the end of the handler we add a `setState(() {})`, 
+which forces a re-render of the UI.
+
+The `Text` showing the time elapsed makes use of the
+`formatTime` function we added to `utils.dart` to 
+correctly format and show the elapsed time.
+
+Your app should now look like this.
+
+<img width="600" alt="basic_setup" src="https://user-images.githubusercontent.com/17494745/202561805-a9e60139-027e-4e7c-9a43-d411652432a4.png">
+
+You can press the button and it will toggle
+between "start" and "stop" and 
+pause and restart the stopwatch.
+
+
 
 ---
 
