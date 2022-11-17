@@ -11,7 +11,7 @@ class StopwatchEx {
 
   reset({Duration? newInitialOffset}) {
     _stopWatch.reset();
-    _initialOffset = newInitialOffset ?? _initialOffset;
+    _initialOffset = newInitialOffset ?? const Duration();
   }
 
   bool get isRunning => _stopWatch.isRunning;

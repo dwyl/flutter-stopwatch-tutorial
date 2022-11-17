@@ -68,13 +68,13 @@ class _StopwatchPageState extends State<StopwatchPage> {
 
   // Deletes all timers
   Future<void> deleteHistoricTimers() async {
-    
     // Deleting persisted timers
     _database.delete(_database.timers).go();
 
     // Reset stopwatch timer
     final stopwatch = await _stopwatch;
     stopwatch.reset();
+    setState(() {});
   }
 
   Future<StopwatchEx> initializeStopwatch() async {
@@ -136,17 +136,33 @@ class _StopwatchPageState extends State<StopwatchPage> {
               return Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Text(formatTime(stopwatch.elapsedMilliseconds),
-                      style: const TextStyle(fontSize: 48.0)),
-                  ElevatedButton(
-                      onPressed: handleStartStop,
-                      child: Text(stopwatch.isRunning ? 'Stop' : 'Start')),
-                  ElevatedButton(
-                      onPressed: deleteHistoricTimers,
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          textStyle: const TextStyle(color: Colors.white)),
-                      child: const Text('Delete')),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 16.0),
+                    child: Text(formatTime(stopwatch.elapsedMilliseconds),
+                        style: const TextStyle(fontSize: 48.0)),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(right: 32.0),
+                        child: FloatingActionButton(
+                          onPressed: handleStartStop,
+                          child: stopwatch.isRunning
+                              ? const Icon(Icons.stop)
+                              : const Icon(Icons.play_arrow),
+                        ),
+                      ),
+                      FloatingActionButton(
+                        onPressed:
+                            !stopwatch.isRunning ? deleteHistoricTimers : null,
+                        backgroundColor: stopwatch.isRunning
+                            ? Colors.redAccent.shade100
+                            : Colors.red,
+                        child: const Icon(Icons.delete),
+                      ),
+                    ],
+                  ),
                 ],
               );
             } else if (snapshot.hasError) {
