@@ -1,17 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:drift/drift.dart' as drift;
 
 import 'database.dart' as Db;
 
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  final database = Db.MyDatabase();
-
-  // Simple select:
-  final allTimers = await database.select(database.timers).get();
-  print('Timers in database: $allTimers');
-
+main() {
   runApp(MyApp());
 }
 
@@ -42,13 +36,23 @@ class StopwatchPage extends StatefulWidget {
 class _StopwatchPageState extends State<StopwatchPage> {
   late Stopwatch _stopwatch;
   late Timer _timer;
+  late Db.MyDatabase _database;
+  late int currentId = 1;
 
   @override
   void initState() {
     super.initState();
+
+    WidgetsFlutterBinding.ensureInitialized();
+    _database = Db.MyDatabase();
+
     _stopwatch = Stopwatch();
+
+    // Timer to rerender the page so the text shows the seconds passing by
     _timer = Timer.periodic(const Duration(milliseconds: 200), (timer) {
-      setState(() {});
+      if (_stopwatch.isRunning) {
+        setState(() {});
+      }
     });
   }
 
@@ -58,13 +62,34 @@ class _StopwatchPageState extends State<StopwatchPage> {
     super.dispose();
   }
 
-  void handleStartStop() {
+  Future<void> handleStartStop() async {
     if (_stopwatch.isRunning) {
+
+      // Updating timer of the currentId
+      final updatedTimer =
+          Db.TimersCompanion(stop: drift.Value(DateTime.now()));
+
+      (_database.update(_database.timers)
+            ..where((tbl) => tbl.id.equals(currentId)))
+          .write(updatedTimer);
+
+      //final allTimers = await _database.select(_database.timers).get();
+      //print(allTimers);
+
       _stopwatch.stop();
+      setState(() {});
     } else {
+
+      // Getting the newly created timer ID to change state with
+      final insertedId = await _database
+          .into(_database.timers)
+          .insert(Db.TimersCompanion.insert(start: DateTime.now()));
+
       _stopwatch.start();
+      setState(() {
+        currentId = insertedId;
+      });
     }
-    setState(() {}); // re-render the page
   }
 
   @override
@@ -77,6 +102,7 @@ class _StopwatchPageState extends State<StopwatchPage> {
           children: <Widget>[
             Text(formatTime(_stopwatch.elapsedMilliseconds),
                 style: const TextStyle(fontSize: 48.0)),
+            Text(currentId.toString()),
             ElevatedButton(
                 onPressed: handleStartStop,
                 child: Text(_stopwatch.isRunning ? 'Stop' : 'Start')),
