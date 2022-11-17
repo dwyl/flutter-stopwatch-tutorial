@@ -5,26 +5,10 @@ import 'package:drift/drift.dart' as drift;
 import 'package:stopwatch_demo/stopwatch.dart';
 
 import 'database.dart' as Db;
+import 'utils.dart';
 
 main() {
-  runApp(MyApp());
-}
-
-String formatTime(int milliseconds) {
-  var secs = milliseconds ~/ 1000;
-  var hours = (secs ~/ 3600).toString().padLeft(2, '0');
-  var minutes = ((secs % 3600) ~/ 60).toString().padLeft(2, '0');
-  var seconds = (secs % 60).toString().padLeft(2, '0');
-  return "$hours:$minutes:$seconds";
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(title: 'Stopwatch Example', home: StopwatchPage());
-  }
+  runApp(const MaterialApp(title: 'Stopwatch Example', home: StopwatchPage()));
 }
 
 class StopwatchPage extends StatefulWidget {
@@ -37,7 +21,7 @@ class StopwatchPage extends StatefulWidget {
 class _StopwatchPageState extends State<StopwatchPage> {
   late Future<StopwatchEx> _stopwatch;
   late Db.MyDatabase _database;
-  late int currentId = 1;
+  late int _currentId = 1;
 
   late Timer _timer;
 
@@ -48,6 +32,7 @@ class _StopwatchPageState extends State<StopwatchPage> {
 
     // Initializing variables -------
     _database = Db.MyDatabase();
+    _stopwatch = initializeStopwatch();
 
     // Timer to rerender the page so the text shows the seconds passing by
     _timer = Timer.periodic(const Duration(milliseconds: 200), (timer) {
@@ -55,9 +40,6 @@ class _StopwatchPageState extends State<StopwatchPage> {
             if (stopwatch.isRunning) {setState(() {})}
           });
     });
-
-    // Fetching current stopwatch duration
-    _stopwatch = initializeStopwatch();
   }
 
   @override
@@ -77,7 +59,9 @@ class _StopwatchPageState extends State<StopwatchPage> {
     setState(() {});
   }
 
+  // Initializes stop watch
   Future<StopwatchEx> initializeStopwatch() async {
+
     // Fetch all the persisted timers
     final allTimers = await _database.select(_database.timers).get();
 
@@ -95,34 +79,40 @@ class _StopwatchPageState extends State<StopwatchPage> {
     return StopwatchEx(initialOffset: accumulativeDuration);
   }
 
-  // Handles starting and stop
+  // Handles starting and stop events
   Future<void> handleStartStop() async {
     final stopwatch = await _stopwatch;
+
     if (stopwatch.isRunning) {
+
       // Updating timer of the currentId
       final updatedTimer =
           Db.TimersCompanion(stop: drift.Value(DateTime.now()));
 
       (_database.update(_database.timers)
-            ..where((tbl) => tbl.id.equals(currentId)))
+            ..where((tbl) => tbl.id.equals(_currentId)))
           .write(updatedTimer);
 
       stopwatch.stop();
       setState(() {});
+
     } else {
+
       // Getting the newly created timer ID to change state with
       final insertedId = await _database
           .into(_database.timers)
           .insert(Db.TimersCompanion.insert(start: DateTime.now()));
 
       stopwatch.start();
+
       setState(() {
-        currentId = insertedId;
+        _currentId = insertedId;
       });
     }
   }
 
-  void _pushCompleted() {
+  // Navigating to page with persisted timers
+  void navigateToPersistedTimersListPage() {
     _database
         .select(_database.timers)
         .get()
@@ -132,10 +122,10 @@ class _StopwatchPageState extends State<StopwatchPage> {
                   final tiles = allTimers.map(
                     (timer) {
                       return ListTile(
-                        title: Text(
+                        title: Text("ID: ${timer.id}"),
+                        subtitle: Text(
                           "Start: ${timer.start} \n"
                           "End: ${timer.stop}",
-                          style: const TextStyle(fontSize: 18),
                         ),
                       );
                     },
@@ -166,7 +156,7 @@ class _StopwatchPageState extends State<StopwatchPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.list),
-            onPressed: _pushCompleted,
+            onPressed: navigateToPersistedTimersListPage,
             tooltip: 'completed todo list',
           ),
         ],
