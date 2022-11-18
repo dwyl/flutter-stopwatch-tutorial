@@ -276,6 +276,162 @@ You can press the button and it will toggle
 between "start" and "stop" and 
 pause and restart the stopwatch.
 
+## Persisting timers
+
+If we want to persist the time elapsed between sessions,
+we need a way to persist each `timer` 
+(duration between a starting and stopping stopwatch at a time)
+on the local device. 
+For this, we are going to be using [`drift`](https://drift.simonbinder.eu/),
+which allows relational persistence inside our device.
+
+The following steps are from [their docs](https://drift.simonbinder.eu/docs/getting-started/),
+adapted to our scenario. 
+If you get stuck, follow their documentation
+and you'll find the right path straight away!
+
+Let's first add the needed dependencies.
+Head over to the `pubspec.yml` 
+and add the following dependencies.
+
+```yml
+dependencies:
+  drift: ^2.2.0
+  sqlite3_flutter_libs: ^0.5.0
+  path_provider: ^2.0.0
+  path: ^1.8.2
+
+dev_dependencies:
+  drift_dev: ^2.2.0+1
+  build_runner: ^2.2.1
+```
+
+and then run the following command
+to fetch the dependencies.
+
+```sh
+flutter pub get
+```
+
+Now that everything is installed,
+we are ready to start declaring our 
+relational schema and database tables.
+For this, create a file called `database.dart`
+and paste the following code.
+
+```dart
+import 'package:drift/drift.dart';
+import 'dart:io';
+
+import 'package:drift/native.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
+
+part 'database.g.dart';
+
+// This will generate a table called "Timers". 
+// The rows of the table will be represented by a class called "Timer"
+class Timers extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  DateTimeColumn get start => dateTime()();
+  DateTimeColumn get stop => dateTime().nullable()();
+}
+
+// This annotation tells drift to prepare a database class that uses both of the
+// tables we just defined. We'll see how to use that database class in a moment.
+@DriftDatabase(tables: [Timers])
+class MyDatabase extends _$MyDatabase {
+}
+```
+
+In this file we define the `Timers` table,
+which has three columns:
+- `id`: an auto-incremented index.
+- `start`: datetime object referring to the start of the timer
+- `stop`: datetime object referring to the end of the timer. 
+It can be `null` because the timer is created with this field
+being `null` which is then updated after it is stopped.
+
+Additionally, with the `@DriftDatabase` annotation
+we add an array of the tables we want to create.
+
+We now need to generate the needed files
+to import in the app to access the database.
+For this, using the configuration file `database.dart`
+we just created, we generate the code.
+
+Run `flutter pub run build_runner build` 
+and you will notice a `database.g.dart` file was created.
+To use these, change the `MyDatabase` class
+defined in the `database.dart` file defined earlier.
+
+```dart
+@DriftDatabase(tables: [Timers])
+class MyDatabase extends _$MyDatabase {
+  // we tell the database where to store the data with this constructor
+  MyDatabase() : super(_openConnection());
+
+  // you should bump this number whenever you change or add a table definition.
+  @override
+  int get schemaVersion => 1;
+}
+
+LazyDatabase _openConnection() {
+  // the LazyDatabase util lets us find the right location for the file async.
+  return LazyDatabase(() async {
+    // put the database file, called db.sqlite here, into the documents folder
+    // for your app.
+    final dbFolder = await getApplicationDocumentsDirectory();
+    final file = File(p.join(dbFolder.path, 'db.sqlite'));
+    return NativeDatabase(file);
+  });
+}
+```
+
+And now we are ready to use our `MyDatabase`
+instance in our app!
+
+> The database class created is ready to be used.
+> However, in Flutter app, `Drift` database classes 
+> are typically instantiated at the top of the widget tree
+> and then passed down using state management tools
+> like `provider` or `riverpod`,
+> making it accessible on any widget inside the tree.
+> If you are inteerested, check the following page
+> for information about state management integration
+> -> https://drift.simonbinder.eu/faq/#using-the-database
+
+You can check if the database is accessible
+by switching the `main` function to the following, 
+inside the `main.lib`.
+
+```dart
+import 'database.dart' as Db;
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final database = Db.MyDatabase();
+
+  // Simple select:
+  final allTimers = await database.select(database.timers).get();
+  print('Timers in database: $allTimers');
+
+  runApp(MyApp());
+}
+```
+
+It is really important to import `database.dart` as `Db`.
+This is because we created a `Timer` class, 
+which can conflict with Dart's native 
+[`Timer`](https://api.dart.dev/stable/2.18.4/dart-async/Timer-class.html)
+class. 
+
+If you run the app, you should see
+the following in the terminal.
+
+```
+flutter: Timers in database: []
+```
 
 
 ---
