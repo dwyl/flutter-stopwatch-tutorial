@@ -692,6 +692,306 @@ If you press `Delete` and start and stop the stopwatch,
 you will see that the array will only have a single Timer.
 This means that deleting is properly working!
 
+## Persisting between sessions and extending stopwatch capabilities
+As it stands, we are not making use of the timers
+we are persisting. 
+This is because the Dart's SDK `Stopwatch` class
+is too simple for what we want. 
+It can start and stop in a session just fine but 
+it doesn't maintain its value between sessions 
+(e.g. closing and reopining the app).
+
+Therefore, we need to *extend* the `Stopwatch` class
+to be able to have this requirement.
+When mounting the app, we can fetch the persisted timers
+and see how much time has already elapsed.
+Therefore, we need to initialize a `Stopwatch` object
+with an initial elapsed time. 
+With this in mind, let's create a class that 
+_wraps_ the `Stopwatch` class and adds an 
+`initialOffset` that we can add to it. 
+We are going to override the `isRunning`, `elapsed` 
+and `elapsedMiliseconds` functions 
+
+Create a file called `stopwatch.dart` file
+and add the following code to it.
+
+```dart
+class StopwatchEx {
+  final Stopwatch _stopWatch = Stopwatch();
+  Duration _initialOffset;
+
+  StopwatchEx({Duration initialOffset = Duration.zero})
+      : _initialOffset = initialOffset;
+
+  start() => _stopWatch.start();
+
+  stop() => _stopWatch.stop();
+
+  reset({Duration? newInitialOffset}) {
+    _stopWatch.reset();
+    _initialOffset = newInitialOffset ?? const Duration();
+  }
+
+  bool get isRunning => _stopWatch.isRunning;
+
+  Duration get elapsed => _stopWatch.elapsed + _initialOffset;
+
+  int get elapsedMilliseconds =>
+      _stopWatch.elapsedMilliseconds + _initialOffset.inMilliseconds;
+}
+```
+
+Inside the `main.dart` file, 
+change it so it looks like the following.
+
+```dart
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:drift/drift.dart' as drift;
+import 'package:stopwatch_demo/stopwatch.dart';
+
+import 'database.dart' as Db;
+import 'utils.dart';
+
+main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(title: 'Stopwatch Example', home: StopwatchPage());
+  }
+}
+
+class StopwatchPage extends StatefulWidget {
+  const StopwatchPage({super.key});
+
+  @override
+  createState() => _StopwatchPageState();
+}
+
+class _StopwatchPageState extends State<StopwatchPage> {
+  late Future<StopwatchEx> _stopwatch;
+  late Db.MyDatabase _database;
+  late int currentId = 1;
+
+  late Timer _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsFlutterBinding.ensureInitialized();
+
+    // Initializing variables -------
+    _database = Db.MyDatabase();
+
+    // Timer to rerender the page so the text shows the seconds passing by
+    _timer = Timer.periodic(const Duration(milliseconds: 200), (timer) {
+      _stopwatch.then((stopwatch) => {
+            if (stopwatch.isRunning) {setState(() {})}
+          });
+    });
+
+    // Fetching current stopwatch duration
+    _stopwatch = initializeStopwatch();
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
+  // Deletes all timers
+  Future<void> deleteHistoricTimers() async {
+    // Deleting persisted timers
+    _database.delete(_database.timers).go();
+
+    // Reset stopwatch timer
+    final stopwatch = await _stopwatch;
+    stopwatch.reset();
+    setState(() {});
+  }
+
+  Future<StopwatchEx> initializeStopwatch() async {
+    // Fetch all the persisted timers
+    final allTimers = await _database.select(_database.timers).get();
+
+    if (allTimers.isEmpty) return StopwatchEx();
+
+    // Accumulate the duration of every timer
+    Duration accumulativeDuration = const Duration();
+    for (Db.Timer timer in allTimers) {
+      final stop = timer.stop;
+      if (stop != null) {
+        accumulativeDuration += stop.difference(timer.start);
+      }
+    }
+
+    return StopwatchEx(initialOffset: accumulativeDuration);
+  }
+
+  // Handles starting and stop
+  Future<void> handleStartStop() async {
+    final stopwatch = await _stopwatch;
+    if (stopwatch.isRunning) {
+      // Updating timer of the currentId
+      final updatedTimer =
+          Db.TimersCompanion(stop: drift.Value(DateTime.now()));
+
+      (_database.update(_database.timers)
+            ..where((tbl) => tbl.id.equals(currentId)))
+          .write(updatedTimer);
+
+      stopwatch.stop();
+      setState(() {});
+    } else {
+      // Getting the newly created timer ID to change state with
+      final insertedId = await _database
+          .into(_database.timers)
+          .insert(Db.TimersCompanion.insert(start: DateTime.now()));
+
+      stopwatch.start();
+      setState(() {
+        currentId = insertedId;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Stopwatch Example')),
+      body: Center(
+        child: FutureBuilder<StopwatchEx>(
+          future: _stopwatch,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              final stopwatch = snapshot.data!;
+
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 16.0),
+                    child: Text(formatTime(stopwatch.elapsedMilliseconds),
+                        style: const TextStyle(fontSize: 48.0)),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(right: 32.0),
+                        child: FloatingActionButton(
+                          onPressed: handleStartStop,
+                          child: stopwatch.isRunning
+                              ? const Icon(Icons.stop)
+                              : const Icon(Icons.play_arrow),
+                        ),
+                      ),
+                      FloatingActionButton(
+                        onPressed:
+                            !stopwatch.isRunning ? deleteHistoricTimers : null,
+                        backgroundColor: stopwatch.isRunning
+                            ? Colors.redAccent.shade100
+                            : Colors.red,
+                        child: const Icon(Icons.delete),
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            } else if (snapshot.hasError) {
+              return Text('${snapshot.error}');
+            }
+
+            // By default, show a loading spinner.
+            return const CircularProgressIndicator();
+          },
+        ),
+      ),
+    );
+  }
+}
+```
+
+Let's do a rundown on the changes applied.
+The `_stopwatch` field is now using the `StopwatchEx` class,
+which is our wrapped class. 
+When initializing the variables inside the page,
+we want our `_stopwatch` field to not start from scratch
+but from a time that was previously stopped.
+This is why we persist the timers.
+Therefore, to initialize the `_stopwatch`, 
+we need to access the database and fetch the timers
+to see how much time it has elapsed. 
+This is an [*asynchronous* operation](https://dart.dev/codelabs/async-await), meaning that the `_stopwatch` field 
+has to be wrapped in a [`Future`](https://api.flutter.dev/flutter/dart-async/Future-class.html) class.
+
+To initialize the `_stopwatch` field, we create
+an `initializeStopwatch()` function that is called
+in `initState()`.
+Inside the `initializeStopwatch()` function,
+we fetch all the timers inside the database
+and get cumulative duration elapsed. 
+This value will be used when instantiating a
+`StopwatchEx` class, that is created with this initial offset.
+
+Another alteration that was applied relates
+to deleting timers.
+Now, when deleting timers, the stopwatch is reset.
+
+Additionally, since `_stopwatch` is a `Future` field,
+everytime it is needs to be accessed, 
+we have to use `await`. 
+This is what happens in `handleStartStop()`.
+
+Lastly, in the `build` function, 
+we make use of the [`FutureBuilder`](https://api.flutter.dev/flutter/widgets/FutureBuilder-class.html) widget. 
+As the name implies, it's a widget made to handle async data operations.
+The UI is rendered according to the result
+of these async operations.
+
+The changes made follow the following template.
+
+```dart
+FutureBuilder<StopwatchEx>(
+  future: _stopwatch,
+  builder: (context, snapshot) {
+    if (snapshot.hasData) {
+      return Text(snapshot.data!);
+    } else if (snapshot.hasError) {
+      return Text('${snapshot.error}');
+    }
+
+    // By default, show a loading spinner.
+    return const CircularProgressIndicator();
+  },
+)
+```
+
+We've added two `FloatingActionButton`, 
+one to toggle between "Start" and "Stop" 
+and another one to reset the stopwatch 
+(and deleting the persisted timers, as well).
+
+Congratulations, your app now allows you 
+to start and stop the stopwatch and
+maintain the elapsed time even if you
+closed and reopened the app 
+(thanks to persisting the timers inside the `Drift` database)
+:tada:.
+
+Your app should now look like this.
+
+<img width="600" alt="persisting" src="https://user-images.githubusercontent.com/17494745/202722175-07ecc495-bb9a-41ab-81c9-363045cd2a80.png">
+
+
 
 ---
 
