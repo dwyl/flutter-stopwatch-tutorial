@@ -615,9 +615,82 @@ At the end of the flow, we rerender the UI wdiget
 by calling `setState((){})`. This is needed or else
 the stopwatch won't properly stop.
 
+## Deleting all timers
+It would be nice to have a button 
+that would delete all the timers. 
+Let's do that.
 
+Inside the `main.dart` file, 
+in the `build` function, 
+add an `ElevatedButton`, so it look likes this.
 
+```dart
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Stopwatch Example')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text(formatTime(_stopwatch.elapsedMilliseconds),
+                style: const TextStyle(fontSize: 48.0)),
+            Text(currentId.toString()),
+            ElevatedButton(
+                onPressed: handleStartStop,
+                child: Text(_stopwatch.isRunning ? 'Stop' : 'Start')),
+            ElevatedButton(
+                onPressed: deleteHistoricTimers,
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    textStyle: TextStyle(color: Colors.white)),
+                child: const Text('Delete')),
+          ],
+        ),
+      ),
+    );
+  }
+```
 
+This button is calling a function when pressed.
+Let's implement it :smile:.
+
+```dart
+  // Deletes all timers
+  Future<void> deleteHistoricTimers() async {
+    _database.delete(_database.timers).go();
+  }
+```
+
+As you can see, it's fairly simple. 
+This function just accesses the database 
+and deletes the all the timers inside the `Timer` table.
+
+If you want to check if the deleting is working,
+uncomment the lines inside the `handleStartStop()`
+function.
+
+```dart
+//final allTimers = await _database.select(_database.timers).get();
+//print(allTimers);
+```
+
+and run the app. It should look like this.
+
+<img width="600" alt="deleting" src="https://user-images.githubusercontent.com/17494745/202709192-9bad053e-e562-4777-9ad3-eec5286c2c98.png">
+
+If you start and stop a few times, you will
+see the `incrementId` increase and see the 
+the terminal logging the `Timers` database table
+everytime you stop the stopwatch.
+
+```
+flutter: [Timer(id: 46, start: 2022-11-18 12:49:33.000, stop: 2022-11-18 12:49:35.000)]
+```
+
+If you press `Delete` and start and stop the stopwatch,
+you will see that the array will only have a single Timer.
+This means that deleting is properly working!
 
 
 ---
