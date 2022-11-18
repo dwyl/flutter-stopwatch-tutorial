@@ -991,6 +991,172 @@ Your app should now look like this.
 
 <img width="600" alt="persisting" src="https://user-images.githubusercontent.com/17494745/202722175-07ecc495-bb9a-41ab-81c9-363045cd2a80.png">
 
+## Adding a page to see persisted timers
+Wouldn't it be nice to have a page 
+where we could see the timers that are currently
+in the database? 
+We fancy it would :wink:.
+
+Let's do it.
+
+Inside the `build` function function, 
+in the `appBar` property, change it to the following.
+This will add an `IconButton` that,
+when pressed, it will navigate the user
+to another page showing a list of the persisted timers.
+
+```dart
+appBar: AppBar(
+        title: const Text('Stopwatch Example'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.list),
+            onPressed: navigateToPersistedTimersListPage,
+            tooltip: 'completed todo list',
+          ),
+        ],
+      ),
+```
+
+As you can see, when pressed, a `_pushCompleted` 
+function is called. Let's implement it.
+
+```dart
+  void navigateToPersistedTimersListPage() {
+    _database
+        .select(_database.timers)
+        .get()
+        .then((allTimers) => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (context) {
+                  final tiles = allTimers.map(
+                    (timer) {
+                      return ListTile(
+                        title: Text("ID: ${timer.id}"),
+                        subtitle: Text(
+                          "Start: ${timer.start} \n"
+                          "End: ${timer.stop}",
+                        ),
+                      );
+                    },
+                  );
+                  final divided = tiles.isNotEmpty
+                      ? ListTile.divideTiles(
+                          context: context,
+                          tiles: tiles,
+                        ).toList()
+                      : <Widget>[];
+
+                  return Scaffold(
+                    appBar: AppBar(
+                      title: const Text('Persisted timers'),
+                    ),
+                    body: ListView(children: divided),
+                  );
+                },
+              ),
+            ));
+  }
+```
+
+In this function, we are fetching
+all the timers inside the `Timer` table of
+the Drift database.
+After fetching all the timers,
+we use the [`Navigator`](https://docs.flutter.dev/development/ui/navigation)
+class to navigate to a route.
+In this same function, we define the route.
+It will hold a `ListView` consisting of an array of
+`ListTile`s. 
+In each `ListTile` we merely print the `Timer`
+information - the `id`, `start` and `stop` fiolds.
+
+If we try to run the app now, it's likely
+an error `There are multiple heroes that share the same tag within a subtree.`
+is thrown.
+To fix this, simply add a `heroTag` property
+to each `FloatingActionButton` inside the `build` function
+inside `_StopwatchPageState` widget state class.
+
+Here's how our `build` function was changed to.
+
+```dart
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Stopwatch Example'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.list),
+            onPressed: navigateToPersistedTimersListPage,
+            tooltip: 'completed todo list',
+          ),
+        ],
+      ),
+      body: Center(
+        child: FutureBuilder<StopwatchEx>(
+          future: _stopwatch,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              final stopwatch = snapshot.data!;
+
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 16.0),
+                    child: Text(formatTime(stopwatch.elapsedMilliseconds),
+                        style: const TextStyle(fontSize: 48.0)),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(right: 32.0),
+                        child: FloatingActionButton(
+                          heroTag: "startstop_btn",
+                          onPressed: handleStartStop,
+                          child: stopwatch.isRunning
+                              ? const Icon(Icons.stop)
+                              : const Icon(Icons.play_arrow),
+                        ),
+                      ),
+                      FloatingActionButton(
+                        heroTag: "delete_btn",
+                        onPressed:
+                            !stopwatch.isRunning ? deleteHistoricTimers : null,
+                        backgroundColor: stopwatch.isRunning
+                            ? Colors.redAccent.shade100
+                            : Colors.red,
+                        child: const Icon(Icons.delete),
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            } else if (snapshot.hasError) {
+              return Text('${snapshot.error}');
+            }
+
+            // By default, show a loading spinner.
+            return const CircularProgressIndicator();
+          },
+        ),
+      ),
+    );
+  }
+```
+
+If we run the app now, it should work properly! :tada:
+You will find a button on the right side of the appbar.
+If you click it, you will see a list of the current
+timers that are persisted inside the database.
+
+<img width="600" alt="final" src="https://user-images.githubusercontent.com/17494745/202734558-8497a442-6ff4-4007-83d6-764a878b7f15.png">
+
+
+
 
 
 ---
