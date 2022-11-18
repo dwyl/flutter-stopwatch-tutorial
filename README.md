@@ -1155,11 +1155,42 @@ timers that are persisted inside the database.
 
 <img width="600" alt="final" src="https://user-images.githubusercontent.com/17494745/202734558-8497a442-6ff4-4007-83d6-764a878b7f15.png">
 
+## Quick clone cleanup
 
+Let's just clean our code a little bit.
+The `MyApp` class is not really necessary here.
+Let's delete it and call the `StopwatchPage` class
+directly from the `main()` function.
 
+```dart
+main() {
+  runApp(const MaterialApp(title: 'Stopwatch Example', home: StopwatchPage()));
+}
+```
 
+That is it!
+Your application should now work properly!
+Congratulations! :tada: 
 
----
+You just created not a simple stopwatch
+application but also learnt about how to leverage
+the `Drift` database to create a local database
+and save information on your device
+and use this information to maintain the application state
+across sessions. 
 
+Awesome job!
 
-The database class from this guide is ready to be used with your app. For Flutter apps, a Drift database class is typically instantiated at the top of your widget tree and then passed down with provider or riverpod. See using the database for ideas on how to integrate Drift into your app's state management.
+Your `main.dart` should look 
+similar to this repo's code.
+
+# What's next? 🤨
+If you found this walkthrough useful, 
+don't be afraid to star the repo so we know 
+we're doing something right.
+
+your feedback is always welcome!
+If you think there's an error 
+or if something's not working, 
+do [open an issue](https://github.com/dwyl/flutter-stopwatch-tutorial/issues)
+and let's discuss!
