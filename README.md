@@ -1,8 +1,9 @@
+
 <div align="center">
 
-    # Flutter Stopwatch ⏱
+# Flutter Stopwatch App ⏱
 
-    A tutorial for building a basic stopwatch from scratch using flutter. 
+<span>A tutorial for building a basic stopwatch from scratch using flutter.</span>
 
 </div>
 
@@ -1182,7 +1183,7 @@ across sessions.
 Awesome job!
 
 Your `main.dart` should look 
-similar to this repo's code.
+[similar to this repo's code](https://github.com/dwyl/flutter-stopwatch-tutorial/blob/initial-implementation/lib/main.dart).
 
 # What's next? 🤨
 If you found this walkthrough useful, 
