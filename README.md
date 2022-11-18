@@ -433,6 +433,192 @@ the following in the terminal.
 flutter: Timers in database: []
 ```
 
+## Creating and updating timers
+Let's insert a row inside the `Timer` table
+everytime the stopwatch is started
+and update the `stop` field everytime
+the stopwatch is stopped.
+
+Inside the `main.dart` file,
+update the code so it looks like the following.
+
+
+```dart
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:drift/drift.dart' as drift;
+
+import 'database.dart' as Db;
+import 'utils.dart';
+
+main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(title: 'Stopwatch Example', home: StopwatchPage());
+  }
+}
+
+class StopwatchPage extends StatefulWidget {
+  const StopwatchPage({super.key});
+
+  @override
+  createState() => _StopwatchPageState();
+}
+
+class _StopwatchPageState extends State<StopwatchPage> {
+  late Stopwatch _stopwatch;
+  late Timer _timer;
+  late Db.MyDatabase _database;
+  late int currentId = 1;
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsFlutterBinding.ensureInitialized();
+    _database = Db.MyDatabase();
+
+    _stopwatch = Stopwatch();
+
+    // Timer to rerender the page so the text shows the seconds passing by
+    _timer = Timer.periodic(const Duration(milliseconds: 200), (timer) {
+      if (_stopwatch.isRunning) {
+        setState(() {});
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
+
+  Future<void> handleStartStop() async {
+    if (_stopwatch.isRunning) {
+
+      // Updating timer of the currentId
+      final updatedTimer =
+          Db.TimersCompanion(stop: drift.Value(DateTime.now()));
+
+      (_database.update(_database.timers)
+            ..where((tbl) => tbl.id.equals(currentId)))
+          .write(updatedTimer);
+
+      //final allTimers = await _database.select(_database.timers).get();
+      //print(allTimers);
+
+      _stopwatch.stop();
+      setState(() {});
+    } else {
+
+      // Getting the newly created timer ID to change state with
+      final insertedId = await _database
+          .into(_database.timers)
+          .insert(Db.TimersCompanion.insert(start: DateTime.now()));
+
+      _stopwatch.start();
+      setState(() {
+        currentId = insertedId;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Stopwatch Example')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text(formatTime(_stopwatch.elapsedMilliseconds),
+                style: const TextStyle(fontSize: 48.0)),
+            Text(currentId.toString()),
+            ElevatedButton(
+                onPressed: handleStartStop,
+                child: Text(_stopwatch.isRunning ? 'Stop' : 'Start')),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
+Inside the `_StopwatchPageState` state widget,
+we are going to be adding two new fields.
+- `_database`: a `MyDatabase` Drift database instance.
+- `currentId`: the current ID of the timer that is occuring
+while running the stopwatch.
+This refers to the `id` column of the `Timer` table.
+
+These variables are initialized 
+inside the `initState()`.
+This function is called *just a single time*, 
+on widget mount. 
+Inside this function we use 
+`WidgetsFlutterBinding.ensureInitialized()` 
+to make sure that everything is initialized.
+You can learn more about why you need this
+if [if you check their docs, in the "Next Steps" section](https://drift.simonbinder.eu/docs/getting-started/#next-steps).
+
+We are changing the `handleStartStop()` function
+to properly interact with the database 
+depending if the stopwatch is running or not.
+If the stopwatch was started,
+we insert a new timer in the table.
+
+```dart
+final insertedId = await _database
+          .into(_database.timers)
+          .insert(Db.TimersCompanion.insert(start: DateTime.now()));
+```
+
+As you can see from the previous snippet,
+we are using the generated class `TimersCompanion`,
+which has a constructor that is used to create objects
+and insert in the database.
+If the column is nullable or has a default value 
+(like, for example, the `id` that auto-increments),
+the field can be ommited. 
+All others must be set.
+
+After inserting, we update the state of the widget
+to update the `currentId` with the one that was
+inserted in the database.
+
+On the other hand, if the stopwatch is already running
+and the user wants to stop, we update the current timer
+`stop` field in the database. 
+For this, we create a `TimersCompanion` 
+with a `stop` value (using Drift's class `Value`)
+and then use it when updating the databse.
+
+```dart
+(_database.update(_database.timers)
+            ..where((tbl) => tbl.id.equals(currentId)))
+          .write(updatedTimer);
+```
+
+To update, we use the `currentId` in the widget state
+and update the row using the `write()` function.
+
+At the end of the flow, we rerender the UI wdiget
+by calling `setState((){})`. This is needed or else
+the stopwatch won't properly stop.
+
+
+
+
+
 
 ---
 
