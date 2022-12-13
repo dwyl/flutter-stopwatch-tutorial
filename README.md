@@ -8,19 +8,24 @@
 </div>
 
 # What? 🤷‍♀️
-This is a quick tutorial that will get you up-and-running
-in less than **20 minutes** with a simple app 
-that functions as a stopwatch that also *persists*
-in-between sessions. 
+This is a quick tutorial 
+that will get you up-and-running
+in less than **20 minutes** 
+with a simple app 
+that works as a stopwatch 
+which also *persists*
+state in-between sessions. 
 
 # Why? 💡
-We wanted to build the simple Flutter app 
-with a stopwatch to test how complex it would be
-before adding this to our [`app`](https://github.com/dwyl/app).
+We wanted to build a simple Flutter app 
+with a stopwatch to test 
+complexity before adding this to our [`app`](https://github.com/dwyl/app).
 
 # Giving it a whirl 📲
-You can try the finished app before trying to build it.
-Simply clone this project, fetch the dependencies
+You can (and should) 
+try the finished app before trying to build it.
+Simply clone this project, 
+fetch the dependencies
 and get it running!
 
 ```sh
@@ -34,26 +39,31 @@ flutter pub get
 If this is your time running a Flutter app,
 either be it on a real device or an emulator,
 please check the [`learn-flutter`](https://github.com/dwyl/learn-flutter/tree/update-info#installing-flutter-%EF%B8%8F)
-repository to setup everything you need to get started on your Flutter journey!
+repository to setup everything you need 
+to get started on your Flutter journey!
 
-After all of this, you can simply run the app
+After all of this, 
+you can simply run the app
 and give it a try!
 
 ## Running on a real device
-If you are interested in running the app on your
-Android or iOS device, you should follow these instructions.
+If you are interested in running the app 
+on your Android or iOS device,
+you should follow these instructions.
 
 ### Android
 Running the app on an Android device is quite easy.
-You first need to [enable developer options](https://developer.android.com/studio/debug/dev-options) and USB debugging on your device.
+You first need to [enable developer options](https://developer.android.com/studio/debug/dev-options) 
+and USB debugging on your device.
 You can tap your `device build number` several times
 and the "Developer Options" option will come up.
-Now it's just a matter of enabling `USB debugging` as well 
+Now it's just a matter of enabling `USB debugging` as well, 
 and you should be sorted.
 
-After this, it's just a matter of plugging your phone
+After this, you just plug your phone
 to your computer with a USB cable. 
-You can check if the device is properly connected by running
+You can check if the device is properly connected 
+by running:
 
 ```sh
 flutter devices
@@ -63,10 +73,14 @@ And you should be able to see the connected phone.
 
 ![connected_device](https://user-images.githubusercontent.com/17494745/201946732-a45299e6-66b4-4ef2-9499-f62a2190ec2c.png)
 
-If you are using visual studio, you can choose the device
-in the bottom bar and pick your phone. 
-To run, simply press `F5` or `Run > Start debugging`
-and the build process will commence and the app will be running on your phone!
+If you are using Visual Studio, 
+you can choose the device
+in the bottom bar 
+and pick your phone. 
+To run, 
+simply press `F5` or `Run > Start debugging`
+and the build process will commence,
+and the app will be running on your phone!
 
 > If this is your first time running on an Android device/emulator, 
 > it might take some time so Gradle downloads all the needed dependencies,
@@ -74,32 +88,38 @@ and the build process will commence and the app will be running on your phone!
 > Just make sure you have a solid internet connection. 
 
 > **Do not** interrupt the the building process on the first setup.
-> This will result in a corrupted `.gradle` file and you need to 
-> clean up to get the app working again. If this happens to you, 
-> check the [`learn-flutter`](https://github.com/dwyl/flutter-counter-example/tree/update-info#running-on-a-real-device-)
-> repo, in the `Running on a real device` section to fix this issue.
+> This will result in a corrupted `.gradle` file 
+> and you need to clean up to get the app working again.
+> If this happens to you, 
+> check the [`learn-flutter`](https://github.com/dwyl/flutter-counter-example/tree/update-info#running-on-a-real-device-) repo
+> in the `Running on a real device` section to fix this issue.
 
 ### iOS
-The process is a wee more complicated because you need an
-**Apple ID** or to sign up for a [`Developer Account`](https://developer.apple.com/programs/enroll/).
+The process is a wee more complicated
+because you need an **Apple ID**
+to sign up for a [`Developer Account`](https://developer.apple.com/programs/enroll/).
 
-After this, open `XCode` and sign in with your ID 
+After this having your Developr Account, 
+open `XCode` and sign in with your ID 
 (inside `Preferences > Accounts`).
 
 ![preferences](https://user-images.githubusercontent.com/17494745/202515691-d4d3832b-8b6e-4e3b-953f-9c01b4a87228.png)
 
-Inside `Manager Certificates`, click on the "+" sign and
+Inside `Manager Certificates`, 
+click on the "+" sign and
 select `iOS Development`.
 
 ![certificates](https://user-images.githubusercontent.com/17494745/202516745-ba05bfac-20db-492f-9580-3aa7cc09803a.png)
 
-
-After this, plug the device to your computer.
+After this, 
+plug the device to your computer.
 Find the device in the dropdown (`Window > Organizer`).
-Below the team pop-up menu, click on `Fix Issue`
+Below the team pop-up menu, 
+click on `Fix Issue`
 and then on `XCode` click the `Run` button.
 
-In subsequent runs, you can deploy with VSCode
+In subsequent runs, 
+you can deploy with VSCode
 or any other IDE. 
 This certificate setup is only needed on the first time with XCode.
 
@@ -107,9 +127,11 @@ This certificate setup is only needed on the first time with XCode.
 Here's a quick demo of what the app will look like,
 running on an OnePlus 6T.
 
-We're going to have a **stopwatch** that persists
-each `timer` that is created everytime it's paused.
-This way, we are saving not only the amount of times
+We're going to have a **stopwatch** 
+that persists each `timer` 
+that is created everytime it's paused.
+This way,
+we are saving not only the amount of times
 the stopwatch was stopped and restarted but also when.
 
 ![demo](https://user-images.githubusercontent.com/17494745/202527641-95b5b33c-1824-47e0-ac75-4286497a3d1b.gif)
@@ -119,15 +141,18 @@ the stopwatch was stopped and restarted but also when.
 
 ## Project setup 
 Let's get cracking! 
-To first setup our project. 
 
-In this walkthrough we are going to use Visual Studio Code. We will assume you have this IDE installed, as well as the Flutter and Dart extensions installed. If not, do so.
+In this walkthrough, 
+we are going to use Visual Studio Code. 
+We will assume you have this IDE installed, 
+as well as the Flutter and Dart extensions installed. 
+If not, do so.
 
 ![extensions](https://user-images.githubusercontent.com/17494745/200812248-0c9336da-74aa-49ff-9aba-758501f4dce2.png)
 
 After restarting VSCode, we can now create our project!
 Click on `View > Command Palette`, 
-type Flutter and click on Flutter: New Project. 
+type "Flutter" and click on `Flutter: New Project`. 
 It will ask you for a name of the new project. 
 Name it `stopwatch_demo`.
 
@@ -148,8 +173,8 @@ Congrats, you got the default app running! :tada:
 
 ## Basic stopwatch 
 Now let's add a basic stopwatch to our application.
-In the `main.dart` file, replace the code
-with the following snippet.
+In the `main.dart` file, 
+replace the code with the following snippet.
 
 ```dart
 import 'dart:async';
@@ -226,8 +251,9 @@ class _StopwatchPageState extends State<StopwatchPage> {
 }
 ```
 
-Inside the `lib` directory, create a new 
-file called `utils.dart` and add the following code to it.
+Inside the `lib` directory, 
+create a new  file called `utils.dart` 
+and add the following code to it.
 
 ```dart
 String formatTime(int milliseconds) {
@@ -239,43 +265,50 @@ String formatTime(int milliseconds) {
 }
 ```
 
-Let's breakdown these changes we just made.
-In the `main.dart` file we are creating a 
-**stateful widget** (a widget that is not static) `StopwatchPage`.
-These widgets have a _state_, which makes the widget dynamic
-throughout its lifetime. 
-When creating a stateful widget, a state class is created
-alongside it, representing the state of the widget
+Let's breakdown the changes we just made.
+In the `main.dart` file,
+we are creating a **stateful widget** 
+(a widget that is not static) `StopwatchPage`.
+These widgets have a _state_, 
+which makes the widget dynamic throughout its lifetime. 
+When creating a stateful widget,
+a state class is created alongside it, 
+representing the state of the widget
 and determines what is built and shown to the user.
 
-In this `StopwatchPage` widget, we are adding two fields to its state:
+In this `StopwatchPage` widget, 
+we are adding two fields to its state:
 `_stopwatch` and `_timer`. 
 The first one is literally a [`Stopwatch`](https://api.dart.dev/be/180360/dart-core/Stopwatch-class.html)
 class that is offered by the Dart SDK natively. 
 This class allows us to `start`, `stop` and `reset` a stopwatch.
 It's a rather simple implementation. 
-However, there are not any hooks that we have that lets us
-rerender the UI. Therefore, we create the second field `_timer`,
-which will rerender the `Text` containing the time elapsed
-every **200ms**.
+However, there are not any hooks 
+that we have that lets us rerender the UI. 
+Therefore, 
+we create the second field `_timer`,
+which will rerender the `Text` 
+containing the time elapsed every **200ms**.
 
 In the UI, we have two buttons. 
-One button toggles between `Start` and `Stop`, which is handled 
-by the `handleStartStop` handler. 
-At the end of the handler we add a `setState(() {})`, 
+One button toggles between `Start` and `Stop`, 
+which is handled by the `handleStartStop` handler. 
+At the end of the handler,
+we add a `setState(() {})`, 
 which forces a re-render of the UI.
 
 The `Text` showing the time elapsed makes use of the
-`formatTime` function we added to `utils.dart` to 
-correctly format and show the elapsed time.
+`formatTime` function we added to `utils.dart`
+to correctly format 
+and show the elapsed time.
 
 Your app should now look like this.
 
 <img width="600" alt="basic_setup" src="https://user-images.githubusercontent.com/17494745/202561805-a9e60139-027e-4e7c-9a43-d411652432a4.png">
 
-You can press the button and it will toggle
-between "start" and "stop" and 
-pause and restart the stopwatch.
+You can press the button 
+and it will toggle between "start" and "stop",
+pausing and restarting the stopwatch. 
 
 ## Persisting timers
 
@@ -283,12 +316,14 @@ If we want to persist the time elapsed between sessions,
 we need a way to persist each `timer` 
 (duration between a starting and stopping stopwatch at a time)
 on the local device. 
-For this, we are going to be using [`drift`](https://drift.simonbinder.eu/),
+For this,
+we are going to be using [`drift`](https://drift.simonbinder.eu/),
 which allows relational persistence inside our device.
 
-The following steps are from [their docs](https://drift.simonbinder.eu/docs/getting-started/),
+The following steps follow [their docs](https://drift.simonbinder.eu/docs/getting-started/),
 adapted to our scenario. 
-If you get stuck, follow their documentation
+If you get stuck, 
+follow their documentation
 and you'll find the right path straight away!
 
 Let's first add the needed dependencies.
@@ -317,7 +352,8 @@ flutter pub get
 Now that everything is installed,
 we are ready to start declaring our 
 relational schema and database tables.
-For this, create a file called `database.dart`
+For this, 
+create a file called `database.dart`
 and paste the following code.
 
 ```dart
@@ -350,20 +386,25 @@ which has three columns:
 - `id`: an auto-incremented index.
 - `start`: datetime object referring to the start of the timer
 - `stop`: datetime object referring to the end of the timer. 
-It can be `null` because the timer is created with this field
-being `null` which is then updated after it is stopped.
+It can be `null` 
+because the timer is created 
+with this field being `null` 
+which is then updated after it is stopped.
 
-Additionally, with the `@DriftDatabase` annotation
+Additionally, 
+with the `@DriftDatabase` annotation
 we add an array of the tables we want to create.
 
 We now need to generate the needed files
 to import in the app to access the database.
-For this, using the configuration file `database.dart`
-we just created, we generate the code.
+For this, 
+using the configuration file `database.dart` we just created,
+we generate the code.
 
 Run `flutter pub run build_runner build` 
 and you will notice a `database.g.dart` file was created.
-To use these, change the `MyDatabase` class
+To use this file, 
+change the `MyDatabase` class
 defined in the `database.dart` file defined earlier.
 
 ```dart
@@ -395,15 +436,17 @@ instance in our app!
 > The database class created is ready to be used.
 > However, in Flutter app, `Drift` database classes 
 > are typically instantiated at the top of the widget tree
-> and then passed down using state management tools
+> and then passed down using state management tools,
 > like `provider` or `riverpod`,
 > making it accessible on any widget inside the tree.
-> If you are inteerested, check the following page
+> If you are interested, 
+> check the following page
 > for information about state management integration
 > -> https://drift.simonbinder.eu/faq/#using-the-database
 
 You can check if the database is accessible
-by switching the `main` function to the following, 
+by switching the `main` function 
+to the following piece of code,
 inside the `main.lib`.
 
 ```dart
@@ -424,11 +467,10 @@ Future<void> main() async {
 It is really important to import `database.dart` as `Db`.
 This is because we created a `Timer` class, 
 which can conflict with Dart's native 
-[`Timer`](https://api.dart.dev/stable/2.18.4/dart-async/Timer-class.html)
-class. 
+[`Timer`](https://api.dart.dev/stable/2.18.4/dart-async/Timer-class.html) class.
 
-If you run the app, you should see
-the following in the terminal.
+If you run the app, 
+you should see the following in the terminal.
 
 ```
 flutter: Timers in database: []
@@ -565,11 +607,11 @@ These variables are initialized
 inside the `initState()`.
 This function is called *just a single time*, 
 on widget mount. 
-Inside this function we use 
-`WidgetsFlutterBinding.ensureInitialized()` 
+Inside this function,
+we use `WidgetsFlutterBinding.ensureInitialized()` 
 to make sure that everything is initialized.
 You can learn more about why you need this
-if [if you check their docs, in the "Next Steps" section](https://drift.simonbinder.eu/docs/getting-started/#next-steps).
+[if you check their docs, in the "Next Steps" section](https://drift.simonbinder.eu/docs/getting-started/#next-steps).
 
 We are changing the `handleStartStop()` function
 to properly interact with the database 
@@ -592,14 +634,18 @@ If the column is nullable or has a default value
 the field can be ommited. 
 All others must be set.
 
-After inserting, we update the state of the widget
-to update the `currentId` with the one that was
-inserted in the database.
+After inserting, 
+we update the state of the widget
+to update the `currentId` with the one 
+that was inserted in the database.
 
-On the other hand, if the stopwatch is already running
-and the user wants to stop, we update the current timer
+On the other hand, 
+if the stopwatch is already running
+and the user wants to stop, 
+we update the current timer
 `stop` field in the database. 
-For this, we create a `TimersCompanion` 
+For this,
+we create a `TimersCompanion` 
 with a `stop` value (using Drift's class `Value`)
 and then use it when updating the databse.
 
@@ -609,12 +655,15 @@ and then use it when updating the databse.
           .write(updatedTimer);
 ```
 
-To update, we use the `currentId` in the widget state
+To update, 
+we use the `currentId` in the widget state
 and update the row using the `write()` function.
 
-At the end of the flow, we rerender the UI wdiget
-by calling `setState((){})`. This is needed or else
-the stopwatch won't properly stop.
+At the end of the flow, 
+we rerender the UI wdiget
+by calling `setState((){})`. 
+This is needed 
+or else the stopwatch won't properly stop.
 
 ## Deleting all timers
 It would be nice to have a button 
@@ -654,7 +703,7 @@ add an `ElevatedButton`, so it look likes this.
 ```
 
 This button is calling a function when pressed.
-Let's implement it :smile:.
+Let's implement it 🙂.
 
 ```dart
   // Deletes all timers
@@ -663,7 +712,8 @@ Let's implement it :smile:.
   }
 ```
 
-As you can see, it's fairly simple. 
+As you can see, 
+it's fairly simple. 
 This function just accesses the database 
 and deletes the all the timers inside the `Timer` table.
 
@@ -680,9 +730,9 @@ and run the app. It should look like this.
 
 <img width="600" alt="deleting" src="https://user-images.githubusercontent.com/17494745/202709192-9bad053e-e562-4777-9ad3-eec5286c2c98.png">
 
-If you start and stop a few times, you will
-see the `incrementId` increase and see the 
-the terminal logging the `Timers` database table
+If you start and stop a few times, 
+you will see the `incrementId` increase 
+and see the  the terminal logging the `Timers` database table
 everytime you stop the stopwatch.
 
 ```
@@ -694,21 +744,25 @@ you will see that the array will only have a single Timer.
 This means that deleting is properly working!
 
 ## Persisting between sessions and extending stopwatch capabilities
-As it stands, we are not making use of the timers
-we are persisting. 
+As it stands, 
+we are not making use of the timers we are persisting. 
 This is because the Dart's SDK `Stopwatch` class
 is too simple for what we want. 
-It can start and stop in a session just fine but 
-it doesn't maintain its value between sessions 
+It can start and stop in a session just fine 
+but it doesn't maintain its value between sessions 
 (e.g. closing and reopining the app).
 
-Therefore, we need to *extend* the `Stopwatch` class
+Therefore, 
+we need to *extend* the `Stopwatch` class
 to be able to have this requirement.
-When mounting the app, we can fetch the persisted timers
+When mounting the app, 
+we can fetch the persisted timers
 and see how much time has already elapsed.
-Therefore, we need to initialize a `Stopwatch` object
+Therefore, 
+we need to initialize a `Stopwatch` object
 with an initial elapsed time. 
-With this in mind, let's create a class that 
+With this in mind, 
+let's create a class that 
 _wraps_ the `Stopwatch` class and adds an 
 `initialOffset` that we can add to it. 
 We are going to override the `isRunning`, `elapsed` 
@@ -925,36 +979,42 @@ Let's do a rundown on the changes applied.
 The `_stopwatch` field is now using the `StopwatchEx` class,
 which is our wrapped class. 
 When initializing the variables inside the page,
-we want our `_stopwatch` field to not start from scratch
+we want our `_stopwatch` field to *not* start from scratch
 but from a time that was previously stopped.
 This is why we persist the timers.
-Therefore, to initialize the `_stopwatch`, 
+Therefore, 
+to initialize the `_stopwatch`, 
 we need to access the database and fetch the timers
 to see how much time it has elapsed. 
-This is an [*asynchronous* operation](https://dart.dev/codelabs/async-await), meaning that the `_stopwatch` field 
+This is an [*asynchronous* operation](https://dart.dev/codelabs/async-await), 
+meaning that the `_stopwatch` field 
 has to be wrapped in a [`Future`](https://api.flutter.dev/flutter/dart-async/Future-class.html) class.
 
-To initialize the `_stopwatch` field, we create
-an `initializeStopwatch()` function that is called
-in `initState()`.
+To initialize the `_stopwatch` field, 
+we create an `initializeStopwatch()` function 
+that is called in `initState()`.
 Inside the `initializeStopwatch()` function,
 we fetch all the timers inside the database
 and get cumulative duration elapsed. 
 This value will be used when instantiating a
-`StopwatchEx` class, that is created with this initial offset.
+`StopwatchEx` class,
+that is created with this initial offset.
 
-Another alteration that was applied relates
-to deleting timers.
-Now, when deleting timers, the stopwatch is reset.
+Another change that was applied 
+relates to deleting timers.
+Now, when deleting timers, 
+the stopwatch is reset.
 
-Additionally, since `_stopwatch` is a `Future` field,
+Additionally, 
+since `_stopwatch` is a `Future` field,
 everytime it is needs to be accessed, 
 we have to use `await`. 
 This is what happens in `handleStartStop()`.
 
 Lastly, in the `build` function, 
 we make use of the [`FutureBuilder`](https://api.flutter.dev/flutter/widgets/FutureBuilder-class.html) widget. 
-As the name implies, it's a widget made to handle async data operations.
+As the name implies, 
+it's a widget made to handle async data operations.
 The UI is rendered according to the result
 of these async operations.
 
@@ -981,12 +1041,13 @@ one to toggle between "Start" and "Stop"
 and another one to reset the stopwatch 
 (and deleting the persisted timers, as well).
 
-Congratulations, your app now allows you 
+Congratulations, 
+your app now allows you 
 to start and stop the stopwatch and
 maintain the elapsed time even if you
 closed and reopened the app 
 (thanks to persisting the timers inside the `Drift` database)
-:tada:.
+🎉.
 
 Your app should now look like this.
 
@@ -996,14 +1057,16 @@ Your app should now look like this.
 Wouldn't it be nice to have a page 
 where we could see the timers that are currently
 in the database? 
-We fancy it would :wink:.
+We fancy it would 😉.
 
 Let's do it.
 
 Inside the `build` function function, 
-in the `appBar` property, change it to the following.
+in the `appBar` property, 
+change it to the following snipet of code.
 This will add an `IconButton` that,
-when pressed, it will navigate the user
+when pressed, 
+it will navigate the user
 to another page showing a list of the persisted timers.
 
 ```dart
@@ -1019,8 +1082,10 @@ appBar: AppBar(
       ),
 ```
 
-As you can see, when pressed, a `_pushCompleted` 
-function is called. Let's implement it.
+As you can see, 
+when pressed, 
+a `_pushCompleted` function is called. 
+Let's implement it.
 
 ```dart
   void navigateToPersistedTimersListPage() {
@@ -1060,23 +1125,29 @@ function is called. Let's implement it.
   }
 ```
 
-In this function, we are fetching
+In this function, 
+we are fetching
 all the timers inside the `Timer` table of
 the Drift database.
 After fetching all the timers,
 we use the [`Navigator`](https://docs.flutter.dev/development/ui/navigation)
 class to navigate to a route.
-In this same function, we define the route.
-It will hold a `ListView` consisting of an array of
-`ListTile`s. 
-In each `ListTile` we merely print the `Timer`
-information - the `id`, `start` and `stop` fiolds.
+In this same function, 
+we define the route.
+It will hold a `ListView` 
+consisting of an array of `ListTile`s. 
+In each `ListTile`,
+we merely print the `Timer` information - 
+the `id`, `start` and `stop` fields.
 
-If we try to run the app now, it's likely
-an error `There are multiple heroes that share the same tag within a subtree.`
+If we try to run the app now, 
+it's likely an error stating 
+`There are multiple heroes that share the same tag within a subtree.`
 is thrown.
-To fix this, simply add a `heroTag` property
-to each `FloatingActionButton` inside the `build` function
+To fix this, 
+simply add a `heroTag` property
+to each `FloatingActionButton` 
+inside the `build` function
 inside `_StopwatchPageState` widget state class.
 
 Here's how our `build` function was changed to.
@@ -1149,14 +1220,16 @@ Here's how our `build` function was changed to.
   }
 ```
 
-If we run the app now, it should work properly! :tada:
+If we run the app now, 
+it should work properly! 👏
 You will find a button on the right side of the appbar.
-If you click it, you will see a list of the current
+If you click it, 
+you will see a list of the current
 timers that are persisted inside the database.
 
 <img width="600" alt="final" src="https://user-images.githubusercontent.com/17494745/202734558-8497a442-6ff4-4007-83d6-764a878b7f15.png">
 
-## Quick clone cleanup
+## Quick code cleanup
 
 Let's just clean our code a little bit.
 The `MyApp` class is not really necessary here.
@@ -1171,14 +1244,14 @@ main() {
 
 That is it!
 Your application should now work properly!
-Congratulations! :tada: 
+Congratulations! 🎉
 
-You just created not a simple stopwatch
-application but also learnt about how to leverage
+You just created not only a simple stopwatch application
+but also learnt about how to leverage
 the `Drift` database to create a local database
 and save information on your device
-and use this information to maintain the application state
-across sessions. 
+*and* use this information to 
+maintain the application state across sessions. 
 
 Awesome job!
 
@@ -1190,7 +1263,7 @@ If you found this walkthrough useful,
 don't be afraid to star the repo so we know 
 we're doing something right.
 
-your feedback is always welcome!
+Your feedback is always welcome!
 If you think there's an error 
 or if something's not working, 
 do [open an issue](https://github.com/dwyl/flutter-stopwatch-tutorial/issues)
