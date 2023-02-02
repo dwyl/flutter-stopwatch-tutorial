@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:drift/drift.dart' as drift;
 import 'package:stopwatch_demo/stopwatch.dart';
 
-import 'database.dart' as Db;
+import 'database.dart' as db;
 import 'utils.dart';
 
 main() {
@@ -20,7 +20,7 @@ class StopwatchPage extends StatefulWidget {
 
 class _StopwatchPageState extends State<StopwatchPage> {
   late Future<StopwatchEx> _stopwatch;
-  late Db.MyDatabase _database;
+  late db.MyDatabase _database;
   late int _currentId = 1;
 
   late Timer _timer;
@@ -31,7 +31,7 @@ class _StopwatchPageState extends State<StopwatchPage> {
     WidgetsFlutterBinding.ensureInitialized();
 
     // Initializing variables -------
-    _database = Db.MyDatabase();
+    _database = db.MyDatabase();
     _stopwatch = initializeStopwatch();
 
     // Timer to rerender the page so the text shows the seconds passing by
@@ -69,7 +69,7 @@ class _StopwatchPageState extends State<StopwatchPage> {
 
     // Accumulate the duration of every timer
     Duration accumulativeDuration = const Duration();
-    for (Db.Timer timer in allTimers) {
+    for (db.Timer timer in allTimers) {
       final stop = timer.stop;
       if (stop != null) {
         accumulativeDuration += stop.difference(timer.start);
@@ -87,7 +87,7 @@ class _StopwatchPageState extends State<StopwatchPage> {
 
       // Updating timer of the currentId
       final updatedTimer =
-          Db.TimersCompanion(stop: drift.Value(DateTime.now()));
+          db.TimersCompanion(stop: drift.Value(DateTime.now()));
 
       (_database.update(_database.timers)
             ..where((tbl) => tbl.id.equals(_currentId)))
@@ -101,7 +101,7 @@ class _StopwatchPageState extends State<StopwatchPage> {
       // Getting the newly created timer ID to change state with
       final insertedId = await _database
           .into(_database.timers)
-          .insert(Db.TimersCompanion.insert(start: DateTime.now()));
+          .insert(db.TimersCompanion.insert(start: DateTime.now()));
 
       stopwatch.start();
 
