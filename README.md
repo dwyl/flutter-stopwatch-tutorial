@@ -599,7 +599,7 @@ class _StopwatchPageState extends State<StopwatchPage> {
 Inside the `_StopwatchPageState` state widget,
 we are going to be adding two new fields.
 - `_database`: a `MyDatabase` Drift database instance.
-- `currentId`: the current ID of the timer that is occuring
+- `currentId`: the current ID of the timer that is occurring
 while running the stopwatch.
 This refers to the `id` column of the `Timer` table.
 
