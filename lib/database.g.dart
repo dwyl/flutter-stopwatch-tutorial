@@ -2,11 +2,79 @@
 
 part of 'database.dart';
 
-// **************************************************************************
-// DriftDatabaseGenerator
-// **************************************************************************
-
 // ignore_for_file: type=lint
+class $TimersTable extends Timers with TableInfo<$TimersTable, Timer> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TimersTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _startMeta = const VerificationMeta('start');
+  @override
+  late final GeneratedColumn<DateTime> start = GeneratedColumn<DateTime>(
+      'start', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _stopMeta = const VerificationMeta('stop');
+  @override
+  late final GeneratedColumn<DateTime> stop = GeneratedColumn<DateTime>(
+      'stop', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [id, start, stop];
+  @override
+  String get aliasedName => _alias ?? 'timers';
+  @override
+  String get actualTableName => 'timers';
+  @override
+  VerificationContext validateIntegrity(Insertable<Timer> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('start')) {
+      context.handle(
+          _startMeta, start.isAcceptableOrUnknown(data['start']!, _startMeta));
+    } else if (isInserting) {
+      context.missing(_startMeta);
+    }
+    if (data.containsKey('stop')) {
+      context.handle(
+          _stopMeta, stop.isAcceptableOrUnknown(data['stop']!, _stopMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Timer map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Timer(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      start: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}start'])!,
+      stop: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}stop']),
+    );
+  }
+
+  @override
+  $TimersTable createAlias(String alias) {
+    return $TimersTable(attachedDatabase, alias);
+  }
+}
+
 class Timer extends DataClass implements Insertable<Timer> {
   final int id;
   final DateTime start;
@@ -141,81 +209,11 @@ class TimersCompanion extends UpdateCompanion<Timer> {
   }
 }
 
-class $TimersTable extends Timers with TableInfo<$TimersTable, Timer> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $TimersTable(this.attachedDatabase, [this._alias]);
-  final VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<int> id = GeneratedColumn<int>(
-      'id', aliasedName, false,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultConstraints: 'PRIMARY KEY AUTOINCREMENT');
-  final VerificationMeta _startMeta = const VerificationMeta('start');
-  @override
-  late final GeneratedColumn<DateTime> start = GeneratedColumn<DateTime>(
-      'start', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  final VerificationMeta _stopMeta = const VerificationMeta('stop');
-  @override
-  late final GeneratedColumn<DateTime> stop = GeneratedColumn<DateTime>(
-      'stop', aliasedName, true,
-      type: DriftSqlType.dateTime, requiredDuringInsert: false);
-  @override
-  List<GeneratedColumn> get $columns => [id, start, stop];
-  @override
-  String get aliasedName => _alias ?? 'timers';
-  @override
-  String get actualTableName => 'timers';
-  @override
-  VerificationContext validateIntegrity(Insertable<Timer> instance,
-      {bool isInserting = false}) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    }
-    if (data.containsKey('start')) {
-      context.handle(
-          _startMeta, start.isAcceptableOrUnknown(data['start']!, _startMeta));
-    } else if (isInserting) {
-      context.missing(_startMeta);
-    }
-    if (data.containsKey('stop')) {
-      context.handle(
-          _stopMeta, stop.isAcceptableOrUnknown(data['stop']!, _stopMeta));
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  Timer map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Timer(
-      id: attachedDatabase.options.types
-          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
-      start: attachedDatabase.options.types
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}start'])!,
-      stop: attachedDatabase.options.types
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}stop']),
-    );
-  }
-
-  @override
-  $TimersTable createAlias(String alias) {
-    return $TimersTable(attachedDatabase, alias);
-  }
-}
-
 abstract class _$MyDatabase extends GeneratedDatabase {
   _$MyDatabase(QueryExecutor e) : super(e);
   late final $TimersTable timers = $TimersTable(this);
   @override
-  Iterable<TableInfo<Table, dynamic>> get allTables =>
+  Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [timers];
